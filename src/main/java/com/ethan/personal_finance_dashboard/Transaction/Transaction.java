@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
@@ -17,7 +18,7 @@ import jakarta.validation.constraints.Positive;
 public class Transaction {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -42,15 +43,15 @@ public class Transaction {
         return this.type;
     }
 
-    public BigDecimal amount() {
+    public BigDecimal getAmount() {
         return this.amount;
     }
 
-    public String category() {
+    public String getCategory() {
         return this.category;
     }
 
-    public String description() {
+    public String getDescription() {
         return this.description;
     }
 
@@ -62,7 +63,7 @@ public class Transaction {
         this.id = id;
     }
 
-    public void setTransactionType(TransactionType type) {
+    public void setType(TransactionType type) {
         this.type = type;
     }
 
