@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +42,24 @@ public class TransactionController {
     public ResponseEntity<Transaction> createTransaction(@Valid @RequestBody Transaction transaction) {
         Transaction savedTransaction = transactionRepository.save(transaction);
         return ResponseEntity.created(URI.create("/transactions/" + savedTransaction.getId())).body(savedTransaction);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Transaction> editTransactionById(@Valid @RequestBody Transaction t, @PathVariable Long id) {
+        Transaction transactionToEdit = transactionRepository.findById(id).orElse(null);
+        if (transactionToEdit == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        transactionToEdit.setAmount(t.getAmount());
+        transactionToEdit.setCategory(t.getCategory());
+        transactionToEdit.setDescription(t.getDescription());
+
+        Transaction savedTransaction = transactionRepository.save(transactionToEdit);
+
+        transactionRepository.save(transactionToEdit);
+
+        return ResponseEntity.ok(savedTransaction);
     }
 
 }

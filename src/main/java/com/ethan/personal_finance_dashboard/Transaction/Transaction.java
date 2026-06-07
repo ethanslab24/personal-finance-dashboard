@@ -34,6 +34,9 @@ public class Transaction {
     @NotNull
     private LocalDate date;
 
+    public Transaction() {
+    }
+
     //getters
     public Long getId() {
         return this.id;
