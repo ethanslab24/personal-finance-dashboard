@@ -3,17 +3,38 @@ package com.ethan.personal_finance_dashboard;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+@Entity
 public class Transaction {
 
-    private int id;
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
     private TransactionType type;
+    @NotNull
+    @Positive
+    @Digits(integer = 10, fraction = 2)
     private BigDecimal amount;
+    @NotBlank
     private String category;
     private String description;
+    @NotNull
     private LocalDate date;
 
     //getters
-    public int getId() {
+    public Long getId() {
         return this.id;
     }
 
@@ -37,7 +58,7 @@ public class Transaction {
         return this.date;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
