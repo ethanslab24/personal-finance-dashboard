@@ -1,5 +1,7 @@
 package com.ethan.personal_finance_dashboard.summary;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,4 +23,8 @@ public class SummaryController {
         return transactionService.getFinancialSummary();
     }
 
+    @GetMapping("/category")
+    public List<CategorySummary> categorySummary() {
+        return transactionService.getCategorySummary();
+    }
 }

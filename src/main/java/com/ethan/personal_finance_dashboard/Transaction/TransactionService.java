@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.ethan.personal_finance_dashboard.summary.CategorySummary;
 import com.ethan.personal_finance_dashboard.summary.FinancialSummary;
 
 @Service
@@ -46,5 +47,9 @@ public class TransactionService {
         LocalDate startDate = ym.atDay(1);
         LocalDate endDate = ym.atEndOfMonth();
         return transactionRepository.findByDateBetween(startDate, endDate);
+    }
+
+    public List<CategorySummary> getCategorySummary() {
+        return transactionRepository.getCategorySummary();
     }
 }
