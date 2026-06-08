@@ -8,7 +8,7 @@ import com.ethan.personal_finance_dashboard.transaction.TransactionService;
 
 @RestController
 @RequestMapping("/summary")
-public class SummaryController{
+public class SummaryController {
 
     private final TransactionService transactionService;
 
@@ -16,7 +16,6 @@ public class SummaryController{
         this.transactionService = transactionService;
     }
 
-    
     @GetMapping
     public FinancialSummary summary() {
         return transactionService.getFinancialSummary();

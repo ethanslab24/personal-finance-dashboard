@@ -1,6 +1,8 @@
 package com.ethan.personal_finance_dashboard.transaction;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -38,5 +40,11 @@ public class TransactionService {
 
     public List<Transaction> getRecentTransactions() {
         return transactionRepository.findTop5ByOrderByDateDescIdDesc();
+    }
+
+    public List<Transaction> getTransactionsByMonth(YearMonth ym) {
+        LocalDate startDate = ym.atDay(1);
+        LocalDate endDate = ym.atEndOfMonth();
+        return transactionRepository.findByDateBetween(startDate, endDate);
     }
 }
