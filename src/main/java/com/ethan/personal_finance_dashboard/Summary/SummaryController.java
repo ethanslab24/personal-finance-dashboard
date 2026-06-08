@@ -1,10 +1,10 @@
 package com.ethan.personal_finance_dashboard.summary;
 
-import com.ethan.personal_finance_dashboard.transaction.TransactionService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.math.BigDecimal;
-import org.springframework.web.bind.annotation.GetMapping;
+
+import com.ethan.personal_finance_dashboard.transaction.TransactionService;
 
 @RestController
 @RequestMapping("/summary")
@@ -16,9 +16,10 @@ public class SummaryController{
         this.transactionService = transactionService;
     }
 
-    @GetMapping("/balance")
-    public BigDecimal getBalance() {
-        return transactionService.getBalance();
+    
+    @GetMapping
+    public FinancialSummary summary() {
+        return transactionService.getFinancialSummary();
     }
 
 }

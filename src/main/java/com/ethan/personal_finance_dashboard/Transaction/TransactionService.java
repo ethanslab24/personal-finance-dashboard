@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.ethan.personal_finance_dashboard.summary.FinancialSummary;
+
 @Service
 public class TransactionService {
 
@@ -14,21 +16,23 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public BigDecimal getBalance() {
+    public FinancialSummary getFinancialSummary() {
         List<Transaction> transactions = transactionRepository.findAll();
 
-        BigDecimal curBalance = BigDecimal.ZERO;
+        BigDecimal balance = BigDecimal.ZERO;
+        BigDecimal totalIncome = BigDecimal.ZERO;
+        BigDecimal totalExpenses = BigDecimal.ZERO;
 
         for (Transaction t : transactions) {
             if (t.getType() == TransactionType.INCOME) {
-                curBalance = curBalance.add(t.getAmount());
+                totalIncome = totalIncome.add(t.getAmount());
+                balance = balance.add(t.getAmount());
+            } else if (t.getType() == TransactionType.EXPENSE) {
+                totalExpenses = totalExpenses.add(t.getAmount());
+                balance = balance.subtract(t.getAmount());
             }
-            if (t.getType() == TransactionType.EXPENSE) {
-                curBalance = curBalance.subtract(t.getAmount());
-            }
-
         }
-        return curBalance;
-    }
 
+        return new FinancialSummary(balance, totalIncome, totalExpenses);
+    }
 }
