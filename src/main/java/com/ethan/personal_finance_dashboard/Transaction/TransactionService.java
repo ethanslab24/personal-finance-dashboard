@@ -3,12 +3,14 @@ package com.ethan.personal_finance_dashboard.transaction;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.ethan.personal_finance_dashboard.summary.CategorySummary;
 import com.ethan.personal_finance_dashboard.summary.FinancialSummary;
+import com.ethan.personal_finance_dashboard.summary.MonthlyTrend;
 
 @Service
 public class TransactionService {
@@ -51,5 +53,21 @@ public class TransactionService {
 
     public List<CategorySummary> getCategorySummary() {
         return transactionRepository.getCategorySummary();
+    }
+
+    public List<MonthlyTrend> getMonthlyTrend() {
+        List<Object[]> result = transactionRepository.getMonthlyTrendRaw();
+        List<MonthlyTrend> monthlyTrends = new ArrayList<>();
+
+        for (Object[] val : result) {
+            int year = (Integer) val[0];
+            int month = (Integer) val[1];
+            YearMonth ym = YearMonth.of(year, month);
+            BigDecimal income = (BigDecimal) val[2];
+            BigDecimal expenses = (BigDecimal) val[3];
+            BigDecimal balance = income.subtract(expenses);
+            monthlyTrends.add(new MonthlyTrend(ym, income, expenses, balance));
+        }
+        return monthlyTrends;
     }
 }

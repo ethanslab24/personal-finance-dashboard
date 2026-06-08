@@ -27,4 +27,9 @@ public class SummaryController {
     public List<CategorySummary> categorySummary() {
         return transactionService.getCategorySummary();
     }
+
+    @GetMapping("/monthly-trend")
+    public List<MonthlyTrend> monthlyTrends() {
+        return transactionService.getMonthlyTrend();
+    }
 }

@@ -26,4 +26,15 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     GROUP BY t.category
 """)
     List<CategorySummary> getCategorySummary();
+
+    @Query("""
+    SELECT YEAR(t.date),
+           MONTH(t.date),
+           SUM(CASE WHEN t.type = com.ethan.personal_finance_dashboard.transaction.TransactionType.INCOME THEN t.amount ELSE 0 END),
+           SUM(CASE WHEN t.type = com.ethan.personal_finance_dashboard.transaction.TransactionType.EXPENSE THEN t.amount ELSE 0 END)
+    FROM Transaction t
+    GROUP BY YEAR(t.date), MONTH(t.date)
+    ORDER BY YEAR(t.date), MONTH(t.date)
+""")
+    List<Object[]> getMonthlyTrendRaw();
 }
