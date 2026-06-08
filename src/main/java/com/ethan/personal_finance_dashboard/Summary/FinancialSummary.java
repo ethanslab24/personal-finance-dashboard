@@ -1,4 +1,4 @@
-package com.ethan.personal_finance_dashboard.Summary;
+package com.ethan.personal_finance_dashboard.summary;
 
 import java.math.BigDecimal;
 

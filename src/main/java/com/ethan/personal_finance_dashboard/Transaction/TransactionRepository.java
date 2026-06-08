@@ -1,4 +1,4 @@
-package com.ethan.personal_finance_dashboard.Transaction;
+package com.ethan.personal_finance_dashboard.transaction;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

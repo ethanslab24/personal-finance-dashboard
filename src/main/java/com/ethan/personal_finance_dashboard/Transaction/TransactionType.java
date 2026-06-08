@@ -1,4 +1,4 @@
-package com.ethan.personal_finance_dashboard.Transaction;
+package com.ethan.personal_finance_dashboard.transaction;
 
 public enum TransactionType {
     INCOME,

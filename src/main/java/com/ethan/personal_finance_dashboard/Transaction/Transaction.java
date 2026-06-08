@@ -1,4 +1,4 @@
-package com.ethan.personal_finance_dashboard.Transaction;
+package com.ethan.personal_finance_dashboard.transaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
