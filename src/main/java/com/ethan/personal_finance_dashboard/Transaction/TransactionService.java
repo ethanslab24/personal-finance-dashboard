@@ -35,4 +35,8 @@ public class TransactionService {
 
         return new FinancialSummary(balance, totalIncome, totalExpenses);
     }
+
+    public List<Transaction> getRecentTransactions() {
+        return transactionRepository.findTop5ByOrderByDateDescIdDesc();
+    }
 }

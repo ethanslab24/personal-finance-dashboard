@@ -20,14 +20,21 @@ import jakarta.validation.Valid;
 public class TransactionController {
 
     private final TransactionRepository transactionRepository;
+    private final TransactionService transactionService;
 
-    public TransactionController(TransactionRepository transactionRepository) {
+    public TransactionController(TransactionRepository transactionRepository, TransactionService transactionService) {
         this.transactionRepository = transactionRepository;
+        this.transactionService = transactionService;
     }
 
     @GetMapping
-    public List<Transaction> getAllTransactions() {
+    public List<Transaction> findAllTransactions() {
         return transactionRepository.findAll();
+    }
+
+    @GetMapping("/recent")
+    public List<Transaction> findRecentTransactions() {
+        return transactionService.getRecentTransactions();
     }
 
     @GetMapping("/{id}")
