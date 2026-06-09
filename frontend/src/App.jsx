@@ -10,6 +10,8 @@ function App() {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
 
+  const [editingId, setEditingId] = useState(null);
+
   useEffect(() => {
     fetch("http://localhost:8080/transactions")
       .then((response) => response.json())
@@ -30,21 +32,45 @@ function App() {
       date,
     };
 
-    fetch("http://localhost:8080/transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(addedTransaction),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to add transaction.");
-        }
-        return response.json();
+    if (editingId === null) {
+      fetch("http://localhost:8080/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(addedTransaction),
       })
-      .then((savedTransaction) => {
-        setTransactions((current) => [...current, savedTransaction]);
-        clearForm();
-      });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to add transaction.");
+          }
+          return response.json();
+        })
+        .then((savedTransaction) => {
+          setTransactions((current) => [...current, savedTransaction]);
+          clearForm();
+        });
+    } else {
+      fetch(`http://localhost:8080/transactions/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(addedTransaction),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to edit transaction");
+          }
+          return response.json();
+        })
+        .then((savedTransaction) => {
+          setTransactions((current) =>
+            current.map((transaction) =>
+              transaction.id === savedTransaction.id
+                ? savedTransaction
+                : transaction,
+            ),
+          );
+          clearForm();
+        });
+    }
   }
 
   function deleteTransaction(id) {
@@ -60,67 +86,76 @@ function App() {
     });
   }
 
+  function editTransaction(transaction) {
+    setEditingId(transaction.id);
+    setType(transaction.type);
+    setAmount(transaction.amount);
+    setCategory(transaction.category);
+    setDescription(transaction.description);
+    setDate(transaction.date);
+  }
+
   function clearForm() {
     setType("");
     setAmount("");
     setCategory("");
     setDescription("");
     setDate("");
+    setEditingId(null);
   }
 
   return (
     <main>
       <h1>My Finance Dashboard</h1>
-
       <select value={type} onChange={(e) => setType(e.target.value)}>
-        {type === "" && <option value="">Select Type</option>}
-        <option value="INCOME">Income</option>
-        <option value="EXPENSE">Expense</option>
-      </select>
-
+        {" "}
+        {type === "" && <option value="">Select Type</option>}{" "}
+        <option value="INCOME">Income</option>{" "}
+        <option value="EXPENSE">Expense</option>{" "}
+      </select>{" "}
       <input
         type="number"
         placeholder="Amount"
         value={amount}
         onChange={(event) => setAmount(event.target.value)}
-      />
-
+      />{" "}
       <input
         type="text"
         placeholder="Category"
         value={category}
         onChange={(event) => setCategory(event.target.value)}
-      />
-
+      />{" "}
       <input
         type="text"
         placeholder="Description"
         value={description}
         onChange={(event) => setDescription(event.target.value)}
-      />
-
+      />{" "}
       <input
         type="date"
         value={date}
         onChange={(event) => setDate(event.target.value)}
-      />
-
-      <button onClick={addTransaction}>Add Transaction</button>
+      />{" "}
+      <button onClick={addTransaction}>
+        {" "}
+        {editingId === null ? "Add Transaction" : "Update Transaction"}{" "}
+      </button>{" "}
       <section>
-        <h2>Transactions</h2>
-
+        {" "}
+        <h2>Transactions</h2>{" "}
         {transactions.map((transaction) => (
           <div key={transaction.id}>
-            <p>{transaction.category}</p>
-            <p>{transaction.type}</p>
-            <p>{transaction.amount}</p>
-            <p>{transaction.description}</p>
-            <p>{transaction.date}</p>
+            {" "}
+            <p>{transaction.category}</p> <p>{transaction.type}</p>{" "}
+            <p>{transaction.amount}</p> <p>{transaction.description}</p>{" "}
+            <p>{transaction.date}</p>{" "}
+            <button onClick={() => editTransaction(transaction)}>Edit</button>{" "}
             <button onClick={() => deleteTransaction(transaction.id)}>
-              Delete
-            </button>
+              {" "}
+              Delete{" "}
+            </button>{" "}
           </div>
-        ))}
+        ))}{" "}
       </section>
     </main>
   );
