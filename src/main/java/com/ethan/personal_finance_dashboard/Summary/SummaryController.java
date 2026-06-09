@@ -2,12 +2,14 @@ package com.ethan.personal_finance_dashboard.summary;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ethan.personal_finance_dashboard.transaction.TransactionService;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/summary")
 public class SummaryController {
