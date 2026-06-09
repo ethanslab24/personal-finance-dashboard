@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 
 @Entity
@@ -32,6 +33,7 @@ public class Transaction {
     private String category;
     private String description;
     @NotNull
+    @PastOrPresent
     private LocalDate date;
 
     public Transaction() {
