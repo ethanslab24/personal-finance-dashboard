@@ -51,6 +51,17 @@ public class TransactionService {
         return transactionRepository.findByDateBetween(startDate, endDate);
     }
 
+    public List<Transaction> getTransactionsByType(TransactionType type) {
+        return transactionRepository.findByType(type);
+    }
+
+    public List<Transaction> getTransactionsByMonthAndType(YearMonth ym, TransactionType type) {
+        LocalDate startDate = ym.atDay(1);
+        LocalDate endDate = ym.atEndOfMonth();
+
+        return transactionRepository.findByDateBetweenAndType(startDate, endDate, type);
+    }
+
     public List<CategorySummary> getCategorySummary() {
         return transactionRepository.getCategorySummary();
     }

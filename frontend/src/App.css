@@ -137,9 +137,9 @@ body {
 
 .transaction-row {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+  grid-template-columns: 1.4fr 1.3fr .8fr 1.1fr auto;
   align-items: center;
-  gap: 24px;
+  gap: 12px;
   padding: 16px 0;
   border-bottom: 1px solid #ececec;
 }
@@ -212,9 +212,6 @@ button:hover {
   width: 100%
 }
 
-.category-card{
-  margin-bottom:20px;
-}
 
 .monthlytrend-header,
 .monthlytrend-row {
@@ -243,4 +240,27 @@ button:hover {
 
 .monthlytrend-row p {
   margin: 0;
+}
+
+.chart-container {
+  width: 100%;
+  height: 300px;
+}
+
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.reports-grid .content-card {
+  max-width: none;
+  width: 100%;
+}
+
+.category-scroll,
+.monthlytrend-scroll {
+  max-height: 255px;
+  overflow-y: auto;
 }

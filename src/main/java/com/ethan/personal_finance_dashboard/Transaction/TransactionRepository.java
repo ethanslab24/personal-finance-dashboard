@@ -18,6 +18,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByDateBetween(LocalDate startDate, LocalDate endDate);
 
+    List<Transaction> findByType(TransactionType type);
+
+    List<Transaction> findByDateBetweenAndType(
+            LocalDate startDate,
+            LocalDate endDate,
+            TransactionType type
+    );
+
     @Query("""
     SELECT new com.ethan.personal_finance_dashboard.summary.CategorySummary(
         t.category,
@@ -25,6 +33,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         COUNT(t)
     )
     FROM Transaction t
+    WHERE t.type = com.ethan.personal_finance_dashboard.transaction.TransactionType.EXPENSE
     GROUP BY t.category
 """)
     List<CategorySummary> getCategorySummary();
