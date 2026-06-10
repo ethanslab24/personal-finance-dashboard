@@ -38,7 +38,7 @@ public class TransactionController {
             return transactionService.getTransactionsByMonth(ym);
         }
 
-        return transactionRepository.findAll();
+        return transactionRepository.findAllByOrderByDateDescIdDesc();
     }
 
     @GetMapping("/recent")

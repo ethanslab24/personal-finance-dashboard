@@ -62,8 +62,7 @@ function Dashboard() {
           }
           return response.json();
         })
-        .then((savedTransaction) => {
-          setRecentTransactions((current) => [...current, savedTransaction]);
+        .then(() => {
           fetchRecentTransactions();
           fetchSummary();
           clearForm();
@@ -90,7 +89,6 @@ function Dashboard() {
           );
           fetchRecentTransactions();
           fetchSummary();
-          fetchCategorySummary();
           clearForm();
         });
     }
@@ -114,8 +112,8 @@ function Dashboard() {
   function editTransaction(recentTransaction) {
     setEditingId(recentTransaction.id);
     setType(recentTransaction.type);
-    setAmount(recentTransaction.amount);
     setCategory(recentTransaction.category);
+    setAmount(recentTransaction.amount);
     setDescription(recentTransaction.description);
     setDate(recentTransaction.date);
   }

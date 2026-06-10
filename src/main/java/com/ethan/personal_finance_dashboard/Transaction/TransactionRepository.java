@@ -12,6 +12,8 @@ import com.ethan.personal_finance_dashboard.summary.CategorySummary;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
+    List<Transaction> findAllByOrderByDateDescIdDesc();
+
     List<Transaction> findTop5ByOrderByDateDescIdDesc();
 
     List<Transaction> findByDateBetween(LocalDate startDate, LocalDate endDate);
@@ -34,7 +36,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
            SUM(CASE WHEN t.type = com.ethan.personal_finance_dashboard.transaction.TransactionType.EXPENSE THEN t.amount ELSE 0 END)
     FROM Transaction t
     GROUP BY YEAR(t.date), MONTH(t.date)
-    ORDER BY YEAR(t.date), MONTH(t.date)
+    ORDER BY YEAR(t.date) DESC, MONTH(t.date) DESC
 """)
     List<Object[]> getMonthlyTrendRaw();
 }

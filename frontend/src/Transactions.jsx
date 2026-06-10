@@ -31,7 +31,7 @@ function Transactions() {
   }, []);
   return (
     <>
-      <section className="content-card">
+      <section className="content-card transactions-card">
         <h2>Transactions</h2>
 
         {transactions.map((transaction) => (
