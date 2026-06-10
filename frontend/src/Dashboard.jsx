@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 function Dashboard() {
-  const [transactions, setTransactions] = useState([]);
+  const [recentTransactions, setRecentTransactions] = useState([]);
 
   const [type, setType] = useState("");
   const [amount, setAmount] = useState("");
@@ -17,14 +17,12 @@ function Dashboard() {
     balance: 0,
   });
 
-  const [categorySummary, setCategorySummary] = useState([]);
-
-  function fetchTransactions() {
-    fetch("http://localhost:8080/transactions")
+  function fetchRecentTransactions() {
+    fetch("http://localhost:8080/transactions/recent")
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        setTransactions(data);
+        setRecentTransactions(data);
       });
   }
 
@@ -36,16 +34,9 @@ function Dashboard() {
       });
   }
 
-  function fetchCategorySummary() {
-    fetch("http://localhost:8080/summary/category")
-      .then((response) => response.json())
-      .then((data) => setCategorySummary(data));
-  }
-
   useEffect(() => {
-    fetchTransactions();
+    fetchRecentTransactions();
     fetchSummary();
-    fetchCategorySummary();
   }, []);
 
   function addTransaction(e) {
@@ -72,9 +63,9 @@ function Dashboard() {
           return response.json();
         })
         .then((savedTransaction) => {
-          setTransactions((current) => [...current, savedTransaction]);
+          setRecentTransactions((current) => [...current, savedTransaction]);
+          fetchRecentTransactions();
           fetchSummary();
-          fetchCategorySummary();
           clearForm();
         });
     } else {
@@ -90,13 +81,14 @@ function Dashboard() {
           return response.json();
         })
         .then((savedTransaction) => {
-          setTransactions((current) =>
+          setRecentTransactions((current) =>
             current.map((transaction) =>
               transaction.id === savedTransaction.id
                 ? savedTransaction
                 : transaction,
             ),
           );
+          fetchRecentTransactions();
           fetchSummary();
           fetchCategorySummary();
           clearForm();
@@ -111,21 +103,21 @@ function Dashboard() {
       if (!response.ok) {
         throw new Error("Failed to delete transaction");
       }
-      setTransactions((current) =>
-        current.filter((transaction) => transaction.id !== id),
+      setRecentTransactions((current) =>
+        current.filter((recentTransaction) => recentTransaction.id !== id),
       );
+      fetchRecentTransactions();
       fetchSummary();
-      fetchCategorySummary();
     });
   }
 
-  function editTransaction(transaction) {
-    setEditingId(transaction.id);
-    setType(transaction.type);
-    setAmount(transaction.amount);
-    setCategory(transaction.category);
-    setDescription(transaction.description);
-    setDate(transaction.date);
+  function editTransaction(recentTransaction) {
+    setEditingId(recentTransaction.id);
+    setType(recentTransaction.type);
+    setAmount(recentTransaction.amount);
+    setCategory(recentTransaction.category);
+    setDescription(recentTransaction.description);
+    setDate(recentTransaction.date);
   }
 
   function clearForm() {
@@ -197,22 +189,22 @@ function Dashboard() {
       </section>
 
       <section className="content-card">
-        <h2>Transactions</h2>
+        <h2>Recent Transactions</h2>
 
-        {transactions.map((transaction) => (
-          <div className="transaction-row" key={transaction.id}>
+        {recentTransactions.map((recentTransaction) => (
+          <div className="transaction-row" key={recentTransaction.id}>
             <div>
-              <strong>{transaction.category}</strong>
-              <p>{transaction.description}</p>
+              <strong>{recentTransaction.category}</strong>
+              <p>{recentTransaction.description}</p>
             </div>
 
-            <p>{transaction.type}</p>
-            <p>${transaction.amount}</p>
-            <p>{transaction.date}</p>
+            <p>{recentTransaction.type}</p>
+            <p>${recentTransaction.amount}</p>
+            <p>{recentTransaction.date}</p>
 
             <div className="transaction-actions">
-              <button onClick={() => editTransaction(transaction)}>Edit</button>
-              <button onClick={() => deleteTransaction(transaction.id)}>
+              <button onClick={() => editTransaction(recentTransaction)}>Edit</button>
+              <button onClick={() => deleteTransaction(recentTransaction.id)}>
                 Delete
               </button>
             </div>
