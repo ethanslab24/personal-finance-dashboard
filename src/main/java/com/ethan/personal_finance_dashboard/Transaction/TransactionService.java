@@ -6,6 +6,8 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.ethan.personal_finance_dashboard.summary.CategorySummary;
@@ -51,17 +53,6 @@ public class TransactionService {
         return transactionRepository.findByDateBetween(startDate, endDate);
     }
 
-    public List<Transaction> getTransactionsByType(TransactionType type) {
-        return transactionRepository.findByType(type);
-    }
-
-    public List<Transaction> getTransactionsByMonthAndType(YearMonth ym, TransactionType type) {
-        LocalDate startDate = ym.atDay(1);
-        LocalDate endDate = ym.atEndOfMonth();
-
-        return transactionRepository.findByDateBetweenAndType(startDate, endDate, type);
-    }
-
     public List<CategorySummary> getCategorySummary() {
         return transactionRepository.getCategorySummary();
     }
@@ -80,5 +71,39 @@ public class TransactionService {
             monthlyTrends.add(new MonthlyTrend(ym, income, expenses, balance));
         }
         return monthlyTrends;
+    }
+
+    public List<Transaction> getFilteredTransactions(String month, TransactionType type, String category) {
+        Specification<Transaction> spec = (root, query, cb) -> cb.conjunction();
+
+        if (type != null) {
+            spec = spec.and((root, query, cb)
+                    -> cb.equal(root.get("type"), type)
+            );
+        }
+
+        if (category != null) {
+            spec = spec.and((root, query, cb)
+                    -> cb.equal(root.get("category"), category)
+            );
+        }
+
+        if (month != null) {
+            YearMonth ym = YearMonth.parse(month);
+            LocalDate startDate = ym.atDay(1);
+            LocalDate endDate = ym.atEndOfMonth();
+
+            spec = spec.and((root, query, cb)
+                    -> cb.between(root.get("date"), startDate, endDate)
+            );
+        }
+
+        return transactionRepository.findAll(
+                spec,
+                Sort.by(
+                        Sort.Order.desc("date"),
+                        Sort.Order.desc("id")
+                )
+        );
     }
 }

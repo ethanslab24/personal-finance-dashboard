@@ -1,7 +1,6 @@
 package com.ethan.personal_finance_dashboard.transaction;
 
 import java.net.URI;
-import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -32,21 +31,9 @@ public class TransactionController {
     }
 
     @GetMapping
-    public List<Transaction> getTransactions(@RequestParam(required = false) String month, @RequestParam(required = false) TransactionType type) {
-        if (month != null && type != null) {
-            YearMonth ym = YearMonth.parse(month);
-            return transactionService.getTransactionsByMonthAndType(ym, type);
-        }
-
-        if (month != null) {
-            YearMonth ym = YearMonth.parse(month);
-            return transactionService.getTransactionsByMonth(ym);
-        }
-        if (type != null) {
-            return transactionService.getTransactionsByType(type);
-        }
-
-        return transactionRepository.findAllByOrderByDateDescIdDesc();
+    public List<Transaction> getTransactions(@RequestParam(required = false) String month, @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false) String category) {
+        return transactionService.getFilteredTransactions(month, type, category);
     }
 
     @GetMapping("/recent")
