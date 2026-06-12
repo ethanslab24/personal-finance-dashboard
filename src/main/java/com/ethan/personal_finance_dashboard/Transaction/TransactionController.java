@@ -32,8 +32,9 @@ public class TransactionController {
 
     @GetMapping
     public List<Transaction> getTransactions(@RequestParam(required = false) String month, @RequestParam(required = false) TransactionType type,
-            @RequestParam(required = false) String category) {
-        return transactionService.getFilteredTransactions(month, type, category);
+            @RequestParam(required = false) String category, @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String direction) {
+        return transactionService.getFilteredTransactions(month, type, category, sortBy, direction);
     }
 
     @GetMapping("/recent")

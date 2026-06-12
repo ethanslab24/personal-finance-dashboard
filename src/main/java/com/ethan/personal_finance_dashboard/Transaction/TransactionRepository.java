@@ -1,6 +1,5 @@
 package com.ethan.personal_finance_dashboard.transaction;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,8 +14,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
         JpaSpecificationExecutor<Transaction> {
 
     List<Transaction> findTop5ByOrderByDateDescIdDesc();
-
-    List<Transaction> findByDateBetween(LocalDate startDate, LocalDate endDate);
 
     @Query("""
     SELECT new com.ethan.personal_finance_dashboard.summary.CategorySummary(

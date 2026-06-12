@@ -23,6 +23,10 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
+    public List<Transaction> getRecentTransactions() {
+        return transactionRepository.findTop5ByOrderByDateDescIdDesc();
+    }
+
     public FinancialSummary getFinancialSummary() {
         List<Transaction> transactions = transactionRepository.findAll();
 
@@ -41,16 +45,6 @@ public class TransactionService {
         }
 
         return new FinancialSummary(balance, totalIncome, totalExpenses);
-    }
-
-    public List<Transaction> getRecentTransactions() {
-        return transactionRepository.findTop5ByOrderByDateDescIdDesc();
-    }
-
-    public List<Transaction> getTransactionsByMonth(YearMonth ym) {
-        LocalDate startDate = ym.atDay(1);
-        LocalDate endDate = ym.atEndOfMonth();
-        return transactionRepository.findByDateBetween(startDate, endDate);
     }
 
     public List<CategorySummary> getCategorySummary() {
@@ -73,7 +67,8 @@ public class TransactionService {
         return monthlyTrends;
     }
 
-    public List<Transaction> getFilteredTransactions(String month, TransactionType type, String category) {
+    public List<Transaction> getFilteredTransactions(String month, TransactionType type, String category, String sortBy, String direction) {
+
         Specification<Transaction> spec = (root, query, cb) -> cb.conjunction();
 
         if (type != null) {
@@ -98,10 +93,28 @@ public class TransactionService {
             );
         }
 
+        String sortField = "date";
+
+        List<String> allowedSortFields = List.of("date", "amount", "category", "type");
+
+        if (sortBy != null && allowedSortFields.contains(sortBy)) {
+            sortField = sortBy;
+        }
+
+        if (sortBy != null && !sortBy.isBlank()) {
+            sortField = sortBy;
+        }
+
+        Sort.Direction sortDirection = Sort.Direction.DESC;
+
+        if ("asc".equalsIgnoreCase(direction)) {
+            sortDirection = Sort.Direction.ASC;
+        }
+
         return transactionRepository.findAll(
                 spec,
                 Sort.by(
-                        Sort.Order.desc("date"),
+                        new Sort.Order(sortDirection, sortField),
                         Sort.Order.desc("id")
                 )
         );
