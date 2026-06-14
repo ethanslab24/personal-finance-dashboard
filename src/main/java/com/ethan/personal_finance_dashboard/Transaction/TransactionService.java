@@ -67,9 +67,13 @@ public class TransactionService {
         return monthlyTrends;
     }
 
-    public List<Transaction> getFilteredTransactions(String month, TransactionType type, String category, String sortBy, String direction) {
+    public List<Transaction> getFilteredTransactions(TransactionType type, String category, String sortBy, String direction, String startDate, String endDate) {
 
         Specification<Transaction> spec = (root, query, cb) -> cb.conjunction();
+
+        boolean hasCategory = category != null && !category.isBlank();
+        boolean hasStartDate = startDate != null && !startDate.isBlank();
+        boolean hasEndDate = endDate != null && !endDate.isBlank();
 
         if (type != null) {
             spec = spec.and((root, query, cb)
@@ -77,31 +81,31 @@ public class TransactionService {
             );
         }
 
-        if (category != null) {
+        if (hasCategory) {
             spec = spec.and((root, query, cb)
                     -> cb.equal(root.get("category"), category)
             );
         }
 
-        if (month != null) {
-            YearMonth ym = YearMonth.parse(month);
-            LocalDate startDate = ym.atDay(1);
-            LocalDate endDate = ym.atEndOfMonth();
+        if (hasStartDate && hasEndDate) {
+            LocalDate startD = LocalDate.parse(startDate);
+            LocalDate endD = LocalDate.parse(endDate);
 
             spec = spec.and((root, query, cb)
-                    -> cb.between(root.get("date"), startDate, endDate)
+                    -> cb.between(root.get("date"), startD, endD)
             );
+        } else if (hasStartDate) {
+            LocalDate startDateOnly = LocalDate.parse(startDate);
+
+            spec = spec.and((root, query, cb)
+                    -> cb.greaterThanOrEqualTo(root.get("date"), startDateOnly));
         }
 
         String sortField = "date";
 
-        List<String> allowedSortFields = List.of("date", "amount", "category", "type");
+        List<String> allowedSortFields = List.of("date", "amount");
 
-        if (sortBy != null && allowedSortFields.contains(sortBy)) {
-            sortField = sortBy;
-        }
-
-        if (sortBy != null && !sortBy.isBlank()) {
+        if (sortBy != null && !sortBy.isBlank() && allowedSortFields.contains(sortBy)) {
             sortField = sortBy;
         }
 

@@ -163,12 +163,16 @@ function Dashboard() {
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
         />
-        <input
-          type="text"
-          placeholder="Category"
-          value={category}
-          onChange={(event) => setCategory(event.target.value)}
-        />
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option value="">Select Category</option>
+          <option value="Grocery">Grocery</option>
+          <option value="Transportation">Transportation</option>
+          <option value="Pets">Pets</option>
+          <option value="Hobbies">Hobbies</option>
+          <option value="Education">Education</option>
+          <option value="Work">Work</option>
+          <option value="Other">Other</option>
+        </select>
         <input
           type="text"
           placeholder="Description"
@@ -201,7 +205,9 @@ function Dashboard() {
             <p>{recentTransaction.date}</p>
 
             <div className="transaction-actions">
-              <button onClick={() => editTransaction(recentTransaction)}>Edit</button>
+              <button onClick={() => editTransaction(recentTransaction)}>
+                Edit
+              </button>
               <button onClick={() => deleteTransaction(recentTransaction.id)}>
                 Delete
               </button>

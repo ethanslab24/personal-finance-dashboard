@@ -31,10 +31,10 @@ public class TransactionController {
     }
 
     @GetMapping
-    public List<Transaction> getTransactions(@RequestParam(required = false) String month, @RequestParam(required = false) TransactionType type,
+    public List<Transaction> getTransactions(@RequestParam(required = false) TransactionType type,
             @RequestParam(required = false) String category, @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String direction) {
-        return transactionService.getFilteredTransactions(month, type, category, sortBy, direction);
+            @RequestParam(required = false) String direction, @RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate) {
+        return transactionService.getFilteredTransactions(type, category, sortBy, direction, startDate, endDate);
     }
 
     @GetMapping("/recent")
