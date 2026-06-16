@@ -37,7 +37,7 @@ function Dashboard() {
   const [monthlyTrend, setMonthlyTrend] = useState([]);
 
   function fetchRecentTransactions() {
-    fetch("http://localhost:8080/transactions/recent")
+    fetch(`${import.meta.env.VITE_API_URL}/transactions/recent`)
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -46,7 +46,7 @@ function Dashboard() {
   }
 
   function fetchSummary() {
-    fetch("http://localhost:8080/summary")
+    fetch(`${import.meta.env.VITE_API_URL}/summary`)
       .then((response) => response.json())
       .then((data) => {
         setSummary(data);
@@ -54,13 +54,13 @@ function Dashboard() {
   }
 
   function fetchCategorySummary() {
-    fetch("http://localhost:8080/summary/category")
+    fetch(`${import.meta.env.VITE_API_URL}/summary/category`)
       .then((response) => response.json())
       .then((data) => setCategorySummary(data));
   }
 
   function fetchMonthlyTrend() {
-    fetch("http://localhost:8080/summary/monthly-trend")
+    fetch(`${import.meta.env.VITE_API_URL}/summary/monthly-trend`)
       .then((response) => response.json())
       .then((data) => setMonthlyTrend(data));
   }
@@ -84,7 +84,7 @@ function Dashboard() {
     };
 
     if (editingId !== null) {
-      fetch(`http://localhost:8080/transactions/${editingId}`, {
+      fetch(`${import.meta.env.VITE_API_URL}/transactions/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(addedTransaction),
@@ -110,7 +110,7 @@ function Dashboard() {
     }
   }
   function deleteTransaction(id) {
-    fetch(`http://localhost:8080/transactions/${id}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/transactions/${id}`, {
       method: "DELETE",
     }).then((response) => {
       if (!response.ok) {

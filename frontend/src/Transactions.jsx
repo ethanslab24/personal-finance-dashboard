@@ -61,7 +61,7 @@ function Transactions() {
     params.append("sortBy", sortBy);
     params.append("direction", direction);
 
-    fetch(`http://localhost:8080/transactions?${params.toString()}`)
+    fetch(`${import.meta.env.VITE_API_URL}/transactions?${params.toString()}`)
       .then((response) => response.json())
       .then((data) => setTransactions(data));
   }
@@ -78,7 +78,7 @@ function Transactions() {
     };
 
     if (editingId === null) {
-      fetch("http://localhost:8080/transactions", {
+      fetch(`${import.meta.env.VITE_API_URL}/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(addedTransaction),
@@ -95,7 +95,7 @@ function Transactions() {
           setShowModal(false);
         });
     } else {
-      fetch(`http://localhost:8080/transactions/${editingId}`, {
+      fetch(`${import.meta.env.VITE_API_URL}/transactions/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(addedTransaction),
@@ -136,7 +136,7 @@ function Transactions() {
   }
 
   function deleteTransaction(id) {
-    fetch(`http://localhost:8080/transactions/${id}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/transactions/${id}`, {
       method: "DELETE",
     }).then((response) => {
       if (!response.ok) {
@@ -156,7 +156,7 @@ function Transactions() {
     setStartDateFilter("");
     setEndDateFilter("");
 
-    fetch("http://localhost:8080/transactions?sortBy=date&direction=desc")
+    fetch(`${import.meta.env.VITE_API_URL}/transactions?sortBy=date&direction=desc`)
       .then((response) => response.json())
       .then((data) => setTransactions(data));
   }
