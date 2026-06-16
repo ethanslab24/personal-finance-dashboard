@@ -15,10 +15,10 @@ body {
 
 /* SIDEBAR */
 
-.sidebar{
+.sidebar {
   background-color: white;
   width: 200px;
-padding: 10px;
+  padding: 10px;
 }
 
 .sidebar-brand {
@@ -233,10 +233,7 @@ padding: 10px;
   width: 100%;
 }
 
-.content-card h2 {
-  margin-top: 0;
-  margin-bottom: 20px;
-}
+
 
 button {
   border: none;
@@ -250,69 +247,9 @@ button:hover {
   background: #e5e7eb;
 }
 
-.category-header,
-.category-row {
-  display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr;
-  align-items: center;
-  gap: 20px;
-}
-
-.category-header {
-  font-size: 14px;
-  font-weight: 600;
-  color: #6b7280;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #ececec;
-}
-
-.category-row {
-  padding: 14px 0;
-  border-bottom: 1px solid #ececec;
-}
-
-.category-row:last-child {
-  border-bottom: none;
-}
-
-.category-row p {
-  margin: 0;
-}
-
-.transactions-card,
-.category-card,
-.monthlytrend-card {
+.transactions-card {
   max-width: 2000px;
   width: 100%;
-}
-
-.monthlytrend-header,
-.monthlytrend-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  align-items: center;
-  gap: 50px;
-}
-
-.monthlytrend-header {
-  font-size: 14px;
-  font-weight: 600;
-  color: #6b7280;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #ececec;
-}
-
-.monthlytrend-row {
-  padding: 14px 0;
-  border-bottom: 1px solid #ececec;
-}
-
-.monthlytrend-row:last-child {
-  border-bottom: none;
-}
-
-.monthlytrend-row p {
-  margin: 0;
 }
 
 .chart-container {
@@ -330,13 +267,6 @@ button:hover {
   max-width: none;
   width: 100%;
 }
-
-.category-scroll,
-.monthlytrend-scroll {
-  max-height: 255px;
-  overflow-y: auto;
-}
-
 .page-header {
   display: flex;
   justify-content: space-between;
