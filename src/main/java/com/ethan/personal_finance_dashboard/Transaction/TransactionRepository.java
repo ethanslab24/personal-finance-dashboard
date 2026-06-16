@@ -34,7 +34,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
            SUM(CASE WHEN t.type = com.ethan.personal_finance_dashboard.transaction.TransactionType.EXPENSE THEN t.amount ELSE 0 END)
     FROM Transaction t
     GROUP BY YEAR(t.date), MONTH(t.date)
-    ORDER BY YEAR(t.date) DESC, MONTH(t.date) DESC
+    ORDER BY YEAR(t.date) , MONTH(t.date)
 """)
     List<Object[]> getMonthlyTrendRaw();
 }

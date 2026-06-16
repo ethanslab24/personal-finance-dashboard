@@ -303,7 +303,15 @@ function Transactions() {
           <span>Actions</span>
         </div>
 
-        {searchedTransactions.map((transaction) => (
+        
+       {searchedTransactions.length === 0 ? (
+  <div className="empty-state">
+    <h3>No transactions found</h3>
+    <p>Try changing your filters or add a new transaction.</p>
+  </div>
+) : (
+       
+        searchedTransactions.map((transaction) => (
           <div className="transaction-row" key={transaction.id}>
             <p className="category-description-and-date-text">
               {transaction.category}
@@ -357,8 +365,11 @@ function Transactions() {
               </button>
             </div>
           </div>
-        ))}
-      </section>
+        )))}
+      
+        
+        
+        </section>
 
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>

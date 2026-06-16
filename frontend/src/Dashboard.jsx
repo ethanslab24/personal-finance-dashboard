@@ -1,4 +1,20 @@
 import { useEffect, useState } from "react";
+import { Pencil, Trash2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  CartesianGrid,
+  Legend,
+  LabelList,
+} from "recharts";
 
 function Dashboard() {
   const [recentTransactions, setRecentTransactions] = useState([]);
@@ -17,6 +33,9 @@ function Dashboard() {
     balance: 0,
   });
 
+  const [categorySummary, setCategorySummary] = useState([]);
+  const [monthlyTrend, setMonthlyTrend] = useState([]);
+
   function fetchRecentTransactions() {
     fetch("http://localhost:8080/transactions/recent")
       .then((response) => response.json())
@@ -34,12 +53,26 @@ function Dashboard() {
       });
   }
 
+  function fetchCategorySummary() {
+    fetch("http://localhost:8080/summary/category")
+      .then((response) => response.json())
+      .then((data) => setCategorySummary(data));
+  }
+
+  function fetchMonthlyTrend() {
+    fetch("http://localhost:8080/summary/monthly-trend")
+      .then((response) => response.json())
+      .then((data) => setMonthlyTrend(data));
+  }
+
   useEffect(() => {
     fetchRecentTransactions();
     fetchSummary();
+    fetchCategorySummary();
+    fetchMonthlyTrend();
   }, []);
 
-  function addTransaction(e) {
+  function editTransaction(e) {
     e.preventDefault();
 
     const addedTransaction = {
@@ -50,24 +83,7 @@ function Dashboard() {
       date,
     };
 
-    if (editingId === null) {
-      fetch("http://localhost:8080/transactions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(addedTransaction),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to add transaction.");
-          }
-          return response.json();
-        })
-        .then(() => {
-          fetchRecentTransactions();
-          fetchSummary();
-          clearForm();
-        });
-    } else {
+    if (editingId !== null) {
       fetch(`http://localhost:8080/transactions/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -93,7 +109,6 @@ function Dashboard() {
         });
     }
   }
-
   function deleteTransaction(id) {
     fetch(`http://localhost:8080/transactions/${id}`, {
       method: "DELETE",
@@ -118,6 +133,13 @@ function Dashboard() {
     setDate(recentTransaction.date);
   }
 
+  function formatMoney(amount) {
+    return Number(amount).toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+  }
+
   function clearForm() {
     setType("");
     setAmount("");
@@ -129,89 +151,167 @@ function Dashboard() {
 
   return (
     <>
-      <h1>My Finance Dashboard</h1>
+      <h1>Dashboard</h1>
+      <h3 className="dashboard-description">
+        Overview of your personal finances
+      </h3>
 
       <div className="summary-grid">
-        <div className="summary-card">
-          <div className="summary-title">Total Income</div>
+        <div className="summary-card income-summary">
+          <div className="summary-icon income-icon">
+            <TrendingUp size={24} />
+          </div>
 
-          <div className="summary-value">${summary.totalIncome}</div>
+          <div>
+            <div className="summary-title">Total Income</div>
+            <div className="summary-value income-text">
+              {formatMoney(summary.totalIncome)}
+            </div>
+          </div>
         </div>
 
-        <div className="summary-card">
-          <div className="summary-title">Total Expenses</div>
+        <div className="summary-card expense-summary">
+          <div className="summary-icon expense-icon">
+            <TrendingDown size={24} />
+          </div>
 
-          <div className="summary-value">${summary.totalExpenses}</div>
+          <div>
+            <div className="summary-title">Total Expenses</div>
+            <div className="summary-value expense-text">
+              {formatMoney(summary.totalExpenses)}
+            </div>
+          </div>
         </div>
 
-        <div className="summary-card">
-          <div className="summary-title">Balance</div>
+        <div className="summary-card balance-summary">
+          <div className="summary-icon balance-icon">
+            <Wallet size={24} />
+          </div>
 
-          <div className="summary-value">${summary.balance}</div>
+          <div>
+            <div className="summary-title">Balance</div>
+            <div
+              className={
+                summary.balance >= 0
+                  ? "summary-value income-text"
+                  : "summary-value expense-text"
+              }
+            >
+              {formatMoney(summary.balance)}
+            </div>
+          </div>
         </div>
       </div>
 
-      <section className="form-card">
-        <select value={type} onChange={(e) => setType(e.target.value)}>
-          {type === "" && <option value="">Select Type</option>}
-          <option value="INCOME">Income</option>
-          <option value="EXPENSE">Expense</option>
-        </select>
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(event) => setAmount(event.target.value)}
-        />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">Select Category</option>
-          <option value="Grocery">Grocery</option>
-          <option value="Transportation">Transportation</option>
-          <option value="Pets">Pets</option>
-          <option value="Hobbies">Hobbies</option>
-          <option value="Education">Education</option>
-          <option value="Work">Work</option>
-          <option value="Other">Other</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-        />
-        <input
-          type="date"
-          value={date}
-          max={new Date().toISOString().split("T")[0]}
-          onChange={(event) => setDate(event.target.value)}
-        />
-        <button onClick={addTransaction}>
-          {editingId === null ? "Add Transaction" : "Update Transaction"}
-        </button>
-      </section>
+      <div className="dashboard-charts-grid">
+        <section className="content-card chart-card">
+          <h2>Spending by Category</h2>
 
-      <section className="content-card">
+          {categorySummary.length === 0 ? (
+            <div className="empty-state">
+              <h3>No chart data available</h3>
+              <p>Add transactions to see spending by category.</p>
+            </div>
+          ) : (
+            <div className="chart-container">
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={categorySummary} barCategoryGap="30%">
+                  <CartesianGrid vertical={false} stroke="#e5e7eb" />
+                  <XAxis dataKey="category" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} />
+
+                  <Tooltip formatter={(value) => formatMoney(value)} />
+
+                  <Bar dataKey="total" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </section>
+
+        <section className="content-card chart-card">
+          <h2>Income vs Expenses Trend</h2>
+
+          {monthlyTrend.length === 0 ? (
+            <div className="empty-state">
+              <h3>No trend data available</h3>
+              <p>Add transactions to see income and expense trends.</p>
+            </div>
+          ) : (
+            <div className="chart-container">
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={monthlyTrend}>
+                  <CartesianGrid vertical={false} stroke="#e5e7eb" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} />
+                  <Tooltip formatter={(value) => formatMoney(value)} />
+                  <Legend verticalAlign="top" align="center" />
+                  <Line
+                    type="monotone"
+                    dataKey="income"
+                    stroke="#16a34a"
+                    strokeWidth={3}
+                    dot={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="expenses"
+                    stroke="#dc2626"
+                    strokeWidth={3}
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </section>
+      </div>
+
+      <section className="content-card recent-transactions-card">
         <h2>Recent Transactions</h2>
 
+        <div className="recent-transaction-header">
+          <span>Category</span>
+          <span>Description</span>
+          <span>Type</span>
+          <span>Amount</span>
+          <span>Date</span>
+        </div>
+
         {recentTransactions.map((recentTransaction) => (
-          <div className="transaction-row" key={recentTransaction.id}>
-            <div>
-              <strong>{recentTransaction.category}</strong>
-              <p>{recentTransaction.description}</p>
-            </div>
+          <div className="recent-transaction-row" key={recentTransaction.id}>
+            <p className="category-description-and-date-text">
+              {recentTransaction.category}
+            </p>
+            <p className="category-description-and-date-text">
+              {recentTransaction.description}
+            </p>
 
-            <p>{recentTransaction.type}</p>
-            <p>${recentTransaction.amount}</p>
-            <p>{recentTransaction.date}</p>
-
-            <div className="transaction-actions">
-              <button onClick={() => editTransaction(recentTransaction)}>
-                Edit
-              </button>
-              <button onClick={() => deleteTransaction(recentTransaction.id)}>
-                Delete
-              </button>
+            <div className="type-cell">
+              <span
+                className={
+                  recentTransaction.type === "INCOME"
+                    ? "income-badge"
+                    : "expense-badge"
+                }
+              >
+                {recentTransaction.type}
+              </span>
             </div>
+            <p
+              className={
+                recentTransaction.type === "INCOME"
+                  ? "income-amount"
+                  : "expense-amount"
+              }
+            >
+              {recentTransaction.type === "INCOME"
+                ? `+${formatMoney(recentTransaction.amount)}`
+                : `-${formatMoney(recentTransaction.amount)}`}
+            </p>
+            <p className="category-description-and-date-text">
+              {recentTransaction.date}
+            </p>
           </div>
         ))}
       </section>
