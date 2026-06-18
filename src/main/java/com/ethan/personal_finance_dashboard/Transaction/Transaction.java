@@ -64,10 +64,7 @@ public class Transaction {
         return this.date;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    //setters
     public void setType(TransactionType type) {
         this.type = type;
     }
