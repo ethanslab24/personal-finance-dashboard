@@ -1,5 +1,7 @@
 package com.ethan.personal_finance_dashboard.auth;
 
+import java.util.Optional;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,4 +53,31 @@ public class AuthService {
         return new RegisterResponse(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail());
     }
 
+    public LoginResponse login(LoginRequest request) {
+        Optional<User> userOptional
+                = userRepository.findByUsername(
+                        request.getUsername()
+                );
+
+        if (userOptional.isEmpty()) {
+            throw new InvalidLoginException();
+        }
+
+        User user = userOptional.get();
+
+        String storedHash = user.getPassword();
+        String rawPassword = request.getPassword();
+
+        boolean passwordMatches
+                = passwordEncoder.matches(
+                        rawPassword,
+                        storedHash
+                );
+
+        if (!passwordMatches) {
+            throw new InvalidLoginException();
+        }
+
+        return new LoginResponse(user.getId(), user.getUsername());
+    }
 }
