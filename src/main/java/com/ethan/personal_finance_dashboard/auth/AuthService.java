@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.ethan.personal_finance_dashboard.security.JwtService;
 import com.ethan.personal_finance_dashboard.user.User;
 import com.ethan.personal_finance_dashboard.user.UserRepository;
 
@@ -13,10 +14,12 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public RegisterResponse register(RegisterRequest request) {
@@ -78,6 +81,8 @@ public class AuthService {
             throw new InvalidLoginException();
         }
 
-        return new LoginResponse(user.getId(), user.getUsername());
+        String token = jwtService.generateToken(user);
+
+        return new LoginResponse(token, user.getId(), user.getUsername());
     }
 }
