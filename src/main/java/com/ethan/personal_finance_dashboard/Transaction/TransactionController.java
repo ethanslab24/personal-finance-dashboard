@@ -20,69 +20,40 @@ import jakarta.validation.Valid;
 @RequestMapping("/transactions")
 public class TransactionController {
 
-    private final TransactionRepository transactionRepository;
     private final TransactionService transactionService;
 
-    public TransactionController(TransactionRepository transactionRepository, TransactionService transactionService) {
-        this.transactionRepository = transactionRepository;
+    public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
     @GetMapping
-    public List<Transaction> getTransactions(@RequestParam(required = false) TransactionType type,
+    public List<TransactionResponse> getTransactions(@RequestParam(required = false) TransactionType type,
             @RequestParam(required = false) String category, @RequestParam(required = false) String sortBy,
             @RequestParam(required = false) String direction, @RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate) {
         return transactionService.getFilteredTransactions(type, category, sortBy, direction, startDate, endDate);
     }
 
     @GetMapping("/recent")
-    public List<Transaction> findRecentTransactions() {
+    public List<TransactionResponse> findRecentTransactions() {
         return transactionService.getRecentTransactions();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Transaction> findTransactionById(@PathVariable Long id) {
-        Transaction transaction = transactionRepository.findById(id).orElse(null);
-        if (transaction == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(transaction);
-    }
-
     @PostMapping
-    public ResponseEntity<Transaction> createTransaction(@Valid @RequestBody Transaction transaction) {
-        Transaction savedTransaction = transactionRepository.save(transaction);
-        return ResponseEntity.created(URI.create("/transactions/" + savedTransaction.getId())).body(savedTransaction);
+    public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody Transaction transaction) {
+        TransactionResponse savedTransaction = transactionService.createTransaction(transaction);
+        return ResponseEntity.created(URI.create("/transactions/" + savedTransaction.id())).body(savedTransaction);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Transaction> editTransactionById(@Valid @RequestBody Transaction t, @PathVariable Long id) {
-        Transaction transactionToEdit = transactionRepository.findById(id).orElse(null);
-        if (transactionToEdit == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        transactionToEdit.setAmount(t.getAmount());
-        transactionToEdit.setCategory(t.getCategory());
-        transactionToEdit.setDescription(t.getDescription());
-
-        Transaction savedTransaction = transactionRepository.save(transactionToEdit);
-
-        transactionRepository.save(transactionToEdit);
+    public ResponseEntity<TransactionResponse> editTransactionById(@Valid @RequestBody Transaction t, @PathVariable Long id) {
+        TransactionResponse savedTransaction = transactionService.editTransactionById(id, t);
 
         return ResponseEntity.ok(savedTransaction);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTransactionById(@PathVariable Long id) {
-        Transaction transactionToDel = transactionRepository.findById(id).orElse(null);
-        if (transactionToDel == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        transactionRepository.delete(transactionToDel);
+        transactionService.deleteTransactionById(id);
         return ResponseEntity.noContent().build();
-
     }
-
 }

@@ -8,23 +8,106 @@ import java.util.List;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.ethan.personal_finance_dashboard.summary.CategorySummary;
 import com.ethan.personal_finance_dashboard.summary.FinancialSummary;
 import com.ethan.personal_finance_dashboard.summary.MonthlyTrend;
+import com.ethan.personal_finance_dashboard.user.User;
+import com.ethan.personal_finance_dashboard.user.UserRepository;
 
 @Service
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
 
-    public TransactionService(TransactionRepository transactionRepository) {
+    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
+        this.userRepository = userRepository;
     }
 
-    public List<Transaction> getRecentTransactions() {
-        return transactionRepository.findTop5ByOrderByDateDescIdDesc();
+    private TransactionResponse toResponse(Transaction transaction) {
+        return new TransactionResponse(
+                transaction.getId(),
+                transaction.getType(),
+                transaction.getAmount(),
+                transaction.getCategory(),
+                transaction.getDescription(),
+                transaction.getDate()
+        );
+    }
+
+    public TransactionResponse createTransaction(Transaction transaction) {
+        String username = (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow();
+
+        transaction.setUser(currentUser);
+
+        Transaction savedTransaction = transactionRepository.save(transaction);
+
+        return toResponse(savedTransaction);
+    }
+
+    public TransactionResponse editTransactionById(Long id, Transaction t) {
+        String username = (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow();
+
+        Transaction transactionToEdit = transactionRepository
+                .findByIdAndUser(id, currentUser)
+                .orElseThrow();
+
+        transactionToEdit.setAmount(t.getAmount());
+        transactionToEdit.setCategory(t.getCategory());
+        transactionToEdit.setDescription(t.getDescription());
+
+        Transaction savedTransaction = transactionRepository.save(transactionToEdit);
+
+        return toResponse(savedTransaction);
+    }
+
+    public void deleteTransactionById(Long id) {
+        String username = (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow();
+
+        Transaction transactionToDel = transactionRepository
+                .findByIdAndUser(id, currentUser)
+                .orElseThrow();
+
+        transactionRepository.delete(transactionToDel);
+    }
+
+    public List<TransactionResponse> getRecentTransactions() {
+
+        String username = (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow();
+
+        List<Transaction> transactions = transactionRepository
+                .findTop5ByUserOrderByDateDescIdDesc(currentUser);
+
+        return transactions.stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public FinancialSummary getFinancialSummary() {
@@ -67,9 +150,21 @@ public class TransactionService {
         return monthlyTrends;
     }
 
-    public List<Transaction> getFilteredTransactions(TransactionType type, String category, String sortBy, String direction, String startDate, String endDate) {
+    public List<TransactionResponse> getFilteredTransactions(TransactionType type, String category, String sortBy, String direction, String startDate, String endDate) {
+
+        String username = (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow();
 
         Specification<Transaction> spec = (root, query, cb) -> cb.conjunction();
+
+        spec = spec.and((root, query, cb)
+                -> cb.equal(root.get("user"), currentUser)
+        );
 
         boolean hasCategory = category != null && !category.isBlank();
         boolean hasStartDate = startDate != null && !startDate.isBlank();
@@ -115,12 +210,16 @@ public class TransactionService {
             sortDirection = Sort.Direction.ASC;
         }
 
-        return transactionRepository.findAll(
+        List<Transaction> transactions = transactionRepository.findAll(
                 spec,
                 Sort.by(
                         new Sort.Order(sortDirection, sortField),
                         Sort.Order.desc("id")
                 )
         );
+
+        return transactions.stream()
+                .map(this::toResponse)
+                .toList();
     }
 }

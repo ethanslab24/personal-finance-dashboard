@@ -1,6 +1,7 @@
 package com.ethan.personal_finance_dashboard.transaction;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -8,12 +9,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.ethan.personal_finance_dashboard.summary.CategorySummary;
+import com.ethan.personal_finance_dashboard.user.User;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long>,
         JpaSpecificationExecutor<Transaction> {
 
-    List<Transaction> findTop5ByOrderByDateDescIdDesc();
+    List<Transaction> findTop5ByUserOrderByDateDescIdDesc(User user);
+
+    Optional<Transaction> findByIdAndUser(Long id, User user);
 
     @Query("""
     SELECT new com.ethan.personal_finance_dashboard.summary.CategorySummary(
