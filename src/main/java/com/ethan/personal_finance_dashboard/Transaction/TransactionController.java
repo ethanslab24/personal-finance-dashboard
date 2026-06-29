@@ -39,14 +39,14 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody Transaction transaction) {
-        TransactionResponse savedTransaction = transactionService.createTransaction(transaction);
+    public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody TransactionRequest request) {
+        TransactionResponse savedTransaction = transactionService.createTransaction(request);
         return ResponseEntity.created(URI.create("/transactions/" + savedTransaction.id())).body(savedTransaction);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TransactionResponse> editTransactionById(@Valid @RequestBody Transaction t, @PathVariable Long id) {
-        TransactionResponse savedTransaction = transactionService.editTransactionById(id, t);
+    public ResponseEntity<TransactionResponse> editTransactionById(@Valid @RequestBody TransactionRequest request, @PathVariable Long id) {
+        TransactionResponse savedTransaction = transactionService.editTransactionById(id, request);
 
         return ResponseEntity.ok(savedTransaction);
     }

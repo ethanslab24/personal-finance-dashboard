@@ -28,6 +28,16 @@ public class TransactionService {
         this.userRepository = userRepository;
     }
 
+    private User getCurrentUser() {
+        String username = (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return userRepository.findByUsername(username)
+                .orElseThrow();
+    }
+
     private TransactionResponse toResponse(Transaction transaction) {
         return new TransactionResponse(
                 transaction.getId(),
@@ -39,13 +49,16 @@ public class TransactionService {
         );
     }
 
-    public TransactionResponse createTransaction(Transaction transaction) {
-        String username = (String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow();
+    public TransactionResponse createTransaction(TransactionRequest request) {
+        User currentUser = getCurrentUser();
+
+        Transaction transaction = new Transaction();
+
+        transaction.setType(request.getType());
+        transaction.setAmount(request.getAmount());
+        transaction.setCategory(request.getCategory());
+        transaction.setDescription(request.getDescription());
+        transaction.setDate(request.getDate());
 
         transaction.setUser(currentUser);
 
@@ -54,22 +67,17 @@ public class TransactionService {
         return toResponse(savedTransaction);
     }
 
-    public TransactionResponse editTransactionById(Long id, Transaction t) {
-        String username = (String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+    public TransactionResponse editTransactionById(Long id, TransactionRequest request) {
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow();
+        User currentUser = getCurrentUser();
 
         Transaction transactionToEdit = transactionRepository
                 .findByIdAndUser(id, currentUser)
-                .orElseThrow();
+                .orElseThrow(() -> new TransactionNotFoundException(id));
 
-        transactionToEdit.setAmount(t.getAmount());
-        transactionToEdit.setCategory(t.getCategory());
-        transactionToEdit.setDescription(t.getDescription());
+        transactionToEdit.setAmount(request.getAmount());
+        transactionToEdit.setCategory(request.getCategory());
+        transactionToEdit.setDescription(request.getDescription());
 
         Transaction savedTransaction = transactionRepository.save(transactionToEdit);
 
@@ -77,30 +85,19 @@ public class TransactionService {
     }
 
     public void deleteTransactionById(Long id) {
-        String username = (String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow();
+        User currentUser = getCurrentUser();
 
         Transaction transactionToDel = transactionRepository
                 .findByIdAndUser(id, currentUser)
-                .orElseThrow();
+                .orElseThrow(() -> new TransactionNotFoundException(id));
 
         transactionRepository.delete(transactionToDel);
     }
 
     public List<TransactionResponse> getRecentTransactions() {
 
-        String username = (String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow();
+        User currentUser = getCurrentUser();
 
         List<Transaction> transactions = transactionRepository
                 .findTop5ByUserOrderByDateDescIdDesc(currentUser);
@@ -111,13 +108,8 @@ public class TransactionService {
     }
 
     public FinancialSummary getFinancialSummary() {
-        String username = (String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow();
+        User currentUser = getCurrentUser();
 
         List<Transaction> transactions = transactionRepository.findByUser(currentUser);
 
@@ -139,25 +131,13 @@ public class TransactionService {
     }
 
     public List<CategorySummary> getCategorySummary() {
-        String username = (String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow();
-
+        User currentUser = getCurrentUser();
         return transactionRepository.getCategorySummary(currentUser);
     }
 
     public List<MonthlyTrend> getMonthlyTrend() {
-        String username = (String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow();
+        User currentUser = getCurrentUser();
 
         List<Object[]> result = transactionRepository.getMonthlyTrendRaw(currentUser);
         List<MonthlyTrend> monthlyTrends = new ArrayList<>();
@@ -176,13 +156,7 @@ public class TransactionService {
 
     public List<TransactionResponse> getFilteredTransactions(TransactionType type, String category, String sortBy, String direction, String startDate, String endDate) {
 
-        String username = (String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow();
+        User currentUser = getCurrentUser();
 
         Specification<Transaction> spec = (root, query, cb) -> cb.conjunction();
 
