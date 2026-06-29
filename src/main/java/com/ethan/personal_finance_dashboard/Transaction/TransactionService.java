@@ -111,7 +111,15 @@ public class TransactionService {
     }
 
     public FinancialSummary getFinancialSummary() {
-        List<Transaction> transactions = transactionRepository.findAll();
+        String username = (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow();
+
+        List<Transaction> transactions = transactionRepository.findByUser(currentUser);
 
         BigDecimal balance = BigDecimal.ZERO;
         BigDecimal totalIncome = BigDecimal.ZERO;
@@ -131,11 +139,27 @@ public class TransactionService {
     }
 
     public List<CategorySummary> getCategorySummary() {
-        return transactionRepository.getCategorySummary();
+        String username = (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow();
+
+        return transactionRepository.getCategorySummary(currentUser);
     }
 
     public List<MonthlyTrend> getMonthlyTrend() {
-        List<Object[]> result = transactionRepository.getMonthlyTrendRaw();
+        String username = (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow();
+
+        List<Object[]> result = transactionRepository.getMonthlyTrendRaw(currentUser);
         List<MonthlyTrend> monthlyTrends = new ArrayList<>();
 
         for (Object[] val : result) {

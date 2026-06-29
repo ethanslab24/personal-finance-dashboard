@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.ethan.personal_finance_dashboard.summary.CategorySummary;
@@ -19,6 +20,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
 
     Optional<Transaction> findByIdAndUser(Long id, User user);
 
+    List<Transaction> findByUser(User user);
+
     @Query("""
     SELECT new com.ethan.personal_finance_dashboard.summary.CategorySummary(
         t.category,
@@ -27,9 +30,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     )
     FROM Transaction t
     WHERE t.type = com.ethan.personal_finance_dashboard.transaction.TransactionType.EXPENSE
+    AND t.user = :user
     GROUP BY t.category
 """)
-    List<CategorySummary> getCategorySummary();
+    List<CategorySummary> getCategorySummary(@Param("user") User user);
 
     @Query("""
     SELECT YEAR(t.date),
@@ -37,8 +41,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
            SUM(CASE WHEN t.type = com.ethan.personal_finance_dashboard.transaction.TransactionType.INCOME THEN t.amount ELSE 0 END),
            SUM(CASE WHEN t.type = com.ethan.personal_finance_dashboard.transaction.TransactionType.EXPENSE THEN t.amount ELSE 0 END)
     FROM Transaction t
+    WHERE t.user = :user
     GROUP BY YEAR(t.date), MONTH(t.date)
-    ORDER BY YEAR(t.date) , MONTH(t.date)
+    ORDER BY YEAR(t.date), MONTH(t.date)
 """)
-    List<Object[]> getMonthlyTrendRaw();
+    List<Object[]> getMonthlyTrendRaw(@Param("user") User user);
 }
