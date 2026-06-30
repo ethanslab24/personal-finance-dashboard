@@ -3,31 +3,33 @@ import { API_URL } from "./api";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
-function Login() {
+function Register() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
    const navigate = useNavigate();
 
 
-  function login(e) {
+  function register(e) {
     e.preventDefault();
 
-    const loginRequest = {
+    const registerRequest = {
       username,
+      email,
       password,
     };
 
-    fetch(`${API_URL}/auth/login`, {
+    fetch(`${API_URL}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(loginRequest),
+      body: JSON.stringify(registerRequest),
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Incorrect username or password. Try again.");
+          throw new Error("Error in registering. Try again.");
         }
 
         return response.json();
@@ -40,8 +42,8 @@ function Login() {
 
   return (
     <>
-      <form onSubmit={login}>
-        <h2>Login</h2>
+      <form onSubmit={register}>
+        <h2>Create Account</h2>
 
         <div>
           <label>Username</label>
@@ -50,6 +52,17 @@ function Login() {
             value={username}
             placeholder="Type username here."
             onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+
+        <div>
+          <label>Email</label>
+          <input
+            type="email"
+            value={email}
+            placeholder="Type email here."
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -65,14 +78,14 @@ function Login() {
           />
         </div>
 
-        <button type="submit">Sign In</button>
+        <button type="submit">Register</button>
       </form>
 
       <p>
-  Don't have an account? <Link to="/register">Register here</Link>
+  Already have an account? <Link to="/login">Sign In</Link>
 </p>
     </>
   );
 }
 
-export default Login;
+export default Register;
