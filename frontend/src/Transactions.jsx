@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Calendar, RotateCcw } from "lucide-react";
 import { Plus } from "lucide-react";
+import { API_URL, authHeaders } from "./api";
 
 function Transactions() {
   const [showModal, setShowModal] = useState(false);
@@ -61,7 +62,9 @@ function Transactions() {
     params.append("sortBy", sortBy);
     params.append("direction", direction);
 
-    fetch(`${import.meta.env.VITE_API_URL}/transactions?${params.toString()}`)
+    fetch(`${API_URL}/transactions?${params.toString()}`,{
+      headers: authHeaders()
+    })
       .then((response) => response.json())
       .then((data) => setTransactions(data));
   }
@@ -78,9 +81,9 @@ function Transactions() {
     };
 
     if (editingId === null) {
-      fetch(`${import.meta.env.VITE_API_URL}/transactions`, {
+      fetch(`${API_URL}/transactions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(),
         body: JSON.stringify(addedTransaction),
       })
         .then((response) => {
@@ -95,9 +98,9 @@ function Transactions() {
           setShowModal(false);
         });
     } else {
-      fetch(`${import.meta.env.VITE_API_URL}/transactions/${editingId}`, {
+      fetch(`${API_URL}/transactions/${editingId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(),
         body: JSON.stringify(addedTransaction),
       })
         .then((response) => {
@@ -136,7 +139,8 @@ function Transactions() {
   }
 
   function deleteTransaction(id) {
-    fetch(`${import.meta.env.VITE_API_URL}/transactions/${id}`, {
+    fetch(`${API_URL}/transactions/${id}`, {
+      headers: authHeaders(),
       method: "DELETE",
     }).then((response) => {
       if (!response.ok) {
@@ -156,7 +160,9 @@ function Transactions() {
     setStartDateFilter("");
     setEndDateFilter("");
 
-    fetch(`${import.meta.env.VITE_API_URL}/transactions?sortBy=date&direction=desc`)
+    fetch(`${API_URL}/transactions?sortBy=date&direction=desc`,{
+      headers: authHeaders()
+    })
       .then((response) => response.json())
       .then((data) => setTransactions(data));
   }

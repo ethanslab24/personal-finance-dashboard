@@ -6,6 +6,7 @@ import { NavLink } from "react-router-dom";
 
 import Dashboard from "./Dashboard";
 import Transactions from "./Transactions";
+import Login from "./Login";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </main>
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { API_URL, authHeaders } from "./api";
 
 import {
   BarChart,
@@ -37,7 +38,9 @@ function Dashboard() {
   const [monthlyTrend, setMonthlyTrend] = useState([]);
 
   function fetchRecentTransactions() {
-    fetch(`${import.meta.env.VITE_API_URL}/transactions/recent`)
+    fetch(`${API_URL}/transactions/recent`, {
+      headers: authHeaders(),
+    })
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -46,7 +49,9 @@ function Dashboard() {
   }
 
   function fetchSummary() {
-    fetch(`${import.meta.env.VITE_API_URL}/summary`)
+    fetch(`${API_URL}/summary`, {
+      headers: authHeaders(),
+    })
       .then((response) => response.json())
       .then((data) => {
         setSummary(data);
@@ -54,13 +59,17 @@ function Dashboard() {
   }
 
   function fetchCategorySummary() {
-    fetch(`${import.meta.env.VITE_API_URL}/summary/category`)
+    fetch(`${API_URL}/summary/category`, {
+      headers: authHeaders(),
+    })
       .then((response) => response.json())
       .then((data) => setCategorySummary(data));
   }
 
   function fetchMonthlyTrend() {
-    fetch(`${import.meta.env.VITE_API_URL}/summary/monthly-trend`)
+    fetch(`${API_URL}/summary/monthly-trend`, {
+      headers: authHeaders(),
+    })
       .then((response) => response.json())
       .then((data) => setMonthlyTrend(data));
   }
@@ -84,9 +93,10 @@ function Dashboard() {
     };
 
     if (editingId !== null) {
-      fetch(`${import.meta.env.VITE_API_URL}/transactions/${editingId}`, {
+      fetch(`${API_URL}/transactions/${editingId}`, {
+        headers: authHeaders(),
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+
         body: JSON.stringify(addedTransaction),
       })
         .then((response) => {
@@ -110,7 +120,8 @@ function Dashboard() {
     }
   }
   function deleteTransaction(id) {
-    fetch(`${import.meta.env.VITE_API_URL}/transactions/${id}`, {
+    fetch(`${API_URL}/transactions/${id}`, {
+      headers: authHeaders(),
       method: "DELETE",
     }).then((response) => {
       if (!response.ok) {
