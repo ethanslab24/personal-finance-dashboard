@@ -1,22 +1,27 @@
 import { useState } from "react";
 import { API_URL } from "./api";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { Wallet } from "lucide-react";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-   const navigate = useNavigate();
-
+  const navigate = useNavigate();
 
   function login(e) {
     e.preventDefault();
+
+    setError("");
 
     const loginRequest = {
       username,
       password,
     };
+
+    setLoading(true);
 
     fetch(`${API_URL}/auth/login`, {
       method: "POST",
@@ -27,7 +32,10 @@ function Login() {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Incorrect username or password. Try again.");
+          return response.json().then((errorData) => {
+            setError(errorData.message || "Incorrect username or password.");
+            throw new Error("Login failed");
+          });
         }
 
         return response.json();
@@ -35,15 +43,27 @@ function Login() {
       .then((data) => {
         localStorage.setItem("token", data.token);
         navigate("/dashboard");
+      })
+      .catch(() => {
+        // Error message already displayed with setError()
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }
 
   return (
-    <>
-      <form onSubmit={login}>
-        <h2>Login</h2>
+    <div className="auth-page">
+      <form className="auth-card" onSubmit={login}>
+        <div className="auth-logo">
+          <Wallet size={28} />
+        </div>
 
-        <div>
+        <h2>Welcome Back</h2>
+
+        <p className="auth-subtitle">Sign in to manage your finances.</p>
+
+        <div className="auth-field">
           <label>Username</label>
           <input
             type="text"
@@ -54,7 +74,7 @@ function Login() {
           />
         </div>
 
-        <div>
+        <div className="auth-field">
           <label>Password</label>
           <input
             type="password"
@@ -65,13 +85,17 @@ function Login() {
           />
         </div>
 
-        <button type="submit">Sign In</button>
-      </form>
+        {error && <p className="auth-error">{error}</p>}
 
-      <p>
-  Don't have an account? <Link to="/register">Register here</Link>
-</p>
-    </>
+        <button className="auth-button" type="submit" disabled={loading}>
+          {loading ? "Signing In..." : "Sign In"}
+        </button>
+
+        <p className="auth-link-text">
+          Don't have an account? <Link to="/register">Register here</Link>
+        </p>
+      </form>
+    </div>
   );
 }
 
